@@ -1,0 +1,62 @@
+{
+  "_schema": "1.0",
+  "_description": "Software factory task queue. Managed by the Director agent.",
+  "_statuses": ["PENDING", "IN_PROGRESS", "BLOCKED", "DONE", "CANCELLED"],
+  "_types": ["feature", "bug", "research", "review", "devops", "refactor"],
+  "_priorities": ["critical", "high", "medium", "low"],
+  "tasks": [
+    {
+      "id": "example-001",
+      "type": "feature",
+      "title": "Example: Implement user registration endpoint",
+      "priority": "high",
+      "status": "DONE",
+      "assigned_to": "backend",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T02:00:00Z",
+      "context": {
+        "description": "Implement POST /api/v1/auth/register. Accept email, name, password. Hash password with bcrypt. Return JWT on success.",
+        "acceptance_criteria": [
+          "Returns 201 with user object (no password field) on success",
+          "Returns 400 for invalid input",
+          "Returns 409 if email already registered",
+          "Password hashed with bcrypt cost factor >= 12",
+          "Unit and integration tests passing"
+        ],
+        "dependencies": [],
+        "input_artifacts": [],
+        "output_artifacts": [
+          "src/routes/auth.ts",
+          "src/services/authService.ts",
+          "src/models/user.ts",
+          "tests/auth.integration.test.ts"
+        ]
+      },
+      "result": {
+        "notes": "Implemented with Zod validation and bcrypt. JWT issued with 15m expiry.",
+        "test_results": "14 passed, 0 failed"
+      }
+    },
+    {
+      "id": "template-pending",
+      "type": "feature",
+      "title": "TEMPLATE — copy this for new tasks",
+      "priority": "medium",
+      "status": "PENDING",
+      "assigned_to": "backend",
+      "created_at": "2026-01-01T00:00:00Z",
+      "updated_at": "2026-01-01T00:00:00Z",
+      "context": {
+        "description": "Describe what needs to be built or done.",
+        "acceptance_criteria": [
+          "Criterion 1",
+          "Criterion 2"
+        ],
+        "dependencies": [],
+        "input_artifacts": [],
+        "output_artifacts": []
+      },
+      "result": null
+    }
+  ]
+}

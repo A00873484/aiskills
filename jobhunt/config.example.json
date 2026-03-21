@@ -1,0 +1,13 @@
+{
+  "_note": "Copy this file to config.json and fill in your values. config.json is git-ignored.",
+  "name": "Your Full Name",
+  "email": "you@example.com",
+  "phone": "(555) 555-5555",
+  "location": "Your City, Province/State",
+  "linkedin": "linkedin.com/in/your-profile",
+  "github": "github.com/yourusername",
+  "resume_doc_id": "YOUR_GOOGLE_DOC_ID_HERE",
+  "cover_letter_doc_id": "YOUR_GOOGLE_DOC_ID_HERE",
+  "resumes_dir": "C:\\path\\to\\your\\jobhunt\\resumes",
+  "cover_letters_dir": "C:\\path\\to\\your\\jobhunt\\cover-letters"
+}

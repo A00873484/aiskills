@@ -1,0 +1,27 @@
+# Personal documents and screenshots
+jobhunt/resumes/
+jobhunt/cover-letters/
+jobhunt/linkedin_screenshots/
+
+# Job hunt personal data (queue files, search scripts — specific to your job search)
+jobhunt/queue.md
+jobhunt/microsoft-queue.md
+jobhunt/find_hm.py
+jobhunt/find_hiring_managers.py
+
+# Local config — copy config.example.json → config.json and fill in your values
+jobhunt/config.json
+
+# Local configuration and environment
+**/.claude/settings.local.json
+jobhunt/.venv/
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# OS files
+.DS_Store
+Thumbs.db
