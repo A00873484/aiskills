@@ -8,3 +8,14 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Personal/sensitive files
+config.json
+profile.md
+
+# Generated output
+results/
+
+# Job queues
+queue/
+queue-pending/
