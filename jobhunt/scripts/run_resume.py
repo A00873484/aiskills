@@ -20,7 +20,7 @@ import os
 import urllib.request
 import urllib.error
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # ── Load config ───────────────────────────────────────────────────────────────

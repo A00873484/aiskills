@@ -23,7 +23,7 @@ import json
 import re
 import subprocess
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 QUEUE_DIR = os.path.join(BASE_DIR, "queue")
 RESULTS_DIR = os.path.join(BASE_DIR, "results")
 PROFILE_PATH = os.path.join(BASE_DIR, "profile.md")
@@ -50,7 +50,7 @@ Return a single JSON object with EXACTLY these fields:
   "job_slug": "company-role-keyword",
   "company": "Company Name",
   "hiring_manager": "Full Name (or 'Hiring Manager' if not found)",
-  "output_pdf_name": "daniel_engelhard_resume_company_role.pdf",
+  "output_pdf_name": "resume.pdf",
   "resume_text": "<see format below>",
   "bullet_prefixes": ["First few words of bullet 1", "First few words of bullet 2", ...],
   "outreach_subject": "Subject line for the outreach email",

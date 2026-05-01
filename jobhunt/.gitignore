@@ -19,3 +19,6 @@ results/
 # Job queues
 queue/
 queue-pending/
+
+# Environment variables
+.env
