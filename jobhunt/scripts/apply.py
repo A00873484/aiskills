@@ -57,7 +57,6 @@ def fill_toast(page, resume_path: Path, submit: bool):
     print("  Waiting for form to load...")
     page.wait_for_selector("#form_legal_first_name_2_0_0", state="visible", timeout=30000)
     page.locator("#form_legal_first_name_2_0_0").scroll_into_view_if_needed()
-    page.wait_for_timeout(1000)
 
     print("  Filling: Legal First Name")
     fill("#form_legal_first_name_2_0_0", APPLICANT["first_name"])
@@ -83,7 +82,7 @@ def fill_toast(page, resume_path: Path, submit: bool):
 
     print("  Uploading: Resume")
     page.locator("#question_2_0_4_0_1").set_input_files(str(resume_path))
-    page.wait_for_timeout(2000)
+    page.wait_for_timeout(500)
 
     print("  Filling: LinkedIn")
     fill("#question_2_0_4_0_2", APPLICANT["linkedin"])
@@ -100,7 +99,10 @@ def fill_toast(page, resume_path: Path, submit: bool):
     if submit:
         print("  Submitting form...")
         page.locator("#form_submit_2_0").click()
-        page.wait_for_timeout(5000)
+        try:
+            page.wait_for_load_state("networkidle", timeout=10000)
+        except Exception:
+            pass
         print("  Submitted. Final URL:", page.url)
         page.screenshot(path=str(resume_path.parent / "application_submitted.png"), full_page=True)
         print("  Screenshot saved to application_submitted.png")
@@ -116,7 +118,7 @@ def fill_soloio(page, resume_path: Path, submit: bool):
 
     def react_select(input_id: str, option_text: str):
         page.locator(f"#{input_id}").click()
-        page.wait_for_timeout(400)
+        page.wait_for_selector('[role="option"]', timeout=3000)
         page.get_by_role("option", name=option_text).first.click()
 
     dismiss_popups(page)
@@ -124,7 +126,6 @@ def fill_soloio(page, resume_path: Path, submit: bool):
     print("  Waiting for form to load...")
     page.wait_for_selector("#first_name", state="visible", timeout=30000)
     page.locator("#first_name").scroll_into_view_if_needed()
-    page.wait_for_timeout(1000)
 
     print("  Filling: First Name")
     page.locator("#first_name").fill(APPLICANT["first_name"])
@@ -147,7 +148,7 @@ def fill_soloio(page, resume_path: Path, submit: bool):
 
     print("  Uploading: Resume")
     page.locator("#resume").set_input_files(str(resume_path))
-    page.wait_for_timeout(2000)
+    page.wait_for_timeout(500)
 
     # Solo.io custom questions — IDs are specific to this employer's Greenhouse form
     print("  Selecting: Based in United States")
@@ -166,7 +167,7 @@ def fill_soloio(page, resume_path: Path, submit: bool):
     for field_id in ["gender", "hispanic_ethnicity", "veteran_status", "disability_status"]:
         try:
             page.locator(f"#{field_id}").click(timeout=2000)
-            page.wait_for_timeout(300)
+            page.wait_for_selector('[role="option"]', timeout=2000)
             for decline_text in ["Decline to Self Identify", "Decline", "I don't wish to answer", "Prefer not to say"]:
                 try:
                     page.get_by_role("option", name=decline_text).first.click(timeout=1500)
@@ -179,7 +180,10 @@ def fill_soloio(page, resume_path: Path, submit: bool):
     if submit:
         print("  Submitting form...")
         page.get_by_role("button", name="Submit Application").click()
-        page.wait_for_timeout(5000)
+        try:
+            page.wait_for_load_state("networkidle", timeout=10000)
+        except Exception:
+            pass
         print("  Submitted. Final URL:", page.url)
         page.screenshot(path=str(resume_path.parent / "application_submitted.png"), full_page=True)
         print("  Screenshot saved to application_submitted.png")
@@ -253,7 +257,6 @@ def main():
         # Workday SPAs never fire networkidle — use domcontentloaded for them
         wait_strategy = "domcontentloaded" if "myworkdayjobs.com" in apply_url or "lululemon.com" in apply_url else "networkidle"
         page.goto(apply_url, wait_until=wait_strategy, timeout=45000)
-        page.wait_for_timeout(3000)
 
         try:
             handler(page, resume_path, submit=submit)

@@ -68,8 +68,7 @@ def dismiss_popups(page):
     dismissed = []
     for sel in POPUP_SELECTORS:
         try:
-            page.locator(sel).first.click(timeout=2000)
-            page.wait_for_timeout(500)
+            page.locator(sel).first.click(timeout=300)
             dismissed.append(sel)
         except Exception:
             pass
@@ -81,7 +80,10 @@ def dismiss_popups(page):
 
 def handle_verification(page, result_dir: Path):
     """If a verification code page appears, poll for a code written to verify_code.txt."""
-    page.wait_for_timeout(3000)
+    try:
+        page.wait_for_load_state("domcontentloaded", timeout=5000)
+    except Exception:
+        pass
     body = page.inner_text("body")
 
     if "validation code" not in body.lower() and "verify" not in body.lower():
@@ -115,9 +117,12 @@ def handle_verification(page, result_dir: Path):
     print(f"  Got code: {code} — entering...")
     code_input = page.locator("input[type=text], input[type=number]").first
     code_input.fill(code)
-    page.wait_for_timeout(500)
+    page.wait_for_timeout(300)
     page.get_by_role("button", name="VERIFY").click()
-    page.wait_for_timeout(5000)
+    try:
+        page.wait_for_load_state("domcontentloaded", timeout=8000)
+    except Exception:
+        pass
     print("  Verified. Final URL:", page.url)
     page.screenshot(path=str(result_dir / "application_verified.png"), full_page=True)
     print("  Screenshot saved to application_verified.png")
@@ -148,11 +153,11 @@ def fill_workday(page, resume_path: Path, submit: bool):
             container.locator("button").first.click(timeout=3000)
         except Exception:
             container.click()
-        page.wait_for_timeout(600)
+        page.wait_for_selector('[role="listbox"]', timeout=5000)
         # Type to filter for long lists (e.g. province picker)
         try:
             container.locator("input").first.fill(option_text[:4])
-            page.wait_for_timeout(400)
+            page.wait_for_timeout(200)
         except Exception:
             pass
         page.get_by_role("option", name=option_text).first.click(timeout=8000, force=True)
@@ -163,7 +168,10 @@ def fill_workday(page, resume_path: Path, submit: bool):
     for role, label in [("link", "Apply"), ("button", "Apply"), ("button", "Apply Now")]:
         try:
             page.get_by_role(role, name=label).first.click(timeout=5000)
-            page.wait_for_timeout(4000)
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=8000)
+            except Exception:
+                pass
             break
         except Exception:
             pass
@@ -174,14 +182,16 @@ def fill_workday(page, resume_path: Path, submit: bool):
         try:
             page.get_by_role("button", name=label).first.click(timeout=4000)
             print(f"  Clicked modal: '{label}'")
-            page.wait_for_timeout(3000)
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=6000)
+            except Exception:
+                pass
             break
         except Exception:
             pass
 
     try:
         wd("signInLink").click(timeout=5000)
-        page.wait_for_timeout(1500)
         print("  Switched to Sign In panel")
         wd("email").first.fill(APPLICANT["email"])
         wd("password").first.fill(wd_password)
@@ -197,7 +207,6 @@ def fill_workday(page, resume_path: Path, submit: bool):
         if not signed_in:
             page.get_by_role("button", name="Sign In").last.click(timeout=3000)
             print("  Clicked Sign In by role")
-        page.wait_for_timeout(6000)
         print(f"  After sign in — URL: {page.url}")
     except Exception as e:
         print(f"  Sign in skipped (may already be logged in): {e}")
@@ -211,7 +220,7 @@ def fill_workday(page, resume_path: Path, submit: bool):
     print("  Uploading: Resume")
     try:
         page.locator('input[type="file"]').first.set_input_files(str(resume_path))
-        page.wait_for_timeout(2000)
+        page.wait_for_timeout(1000)
         print("  Resume uploaded")
     except Exception:
         print("  WARNING: resume upload step not found — skipping")
@@ -263,7 +272,7 @@ def fill_workday(page, resume_path: Path, submit: bool):
         src_container = wd("formField-source").locator('[data-automation-id="multiselectInputContainer"]')
         src_container.click(timeout=5000)
         page.wait_for_selector('[role="listbox"]', timeout=5000)
-        page.wait_for_timeout(400)
+        page.wait_for_timeout(200)
         all_nodes = page.locator('[data-automation-id="promptLeafNode"]')
         available = all_nodes.all_text_contents()
         print(f"  Source options: {available}")
@@ -284,17 +293,16 @@ def fill_workday(page, resume_path: Path, submit: bool):
                 page.keyboard.press("ArrowDown")
                 page.wait_for_timeout(100)
             page.keyboard.press("Space")
-            page.wait_for_timeout(400)
+            page.wait_for_timeout(200)
             print(f"  Selected source: {chosen_text}")
         page.keyboard.press("Escape")
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(300)
     except Exception as e:
         print(f"  WARNING source: {e}")
 
     print("  Selecting: Previously worked here = No")
     try:
         wd("formField-candidateIsPreviousWorker").scroll_into_view_if_needed()
-        page.wait_for_timeout(300)
         # Regular click doesn't fire React events — use JS dispatch
         page.evaluate("""() => {
             const inp = document.querySelector('[name="candidateIsPreviousWorker"][value="false"]');
@@ -310,7 +318,10 @@ def fill_workday(page, resume_path: Path, submit: bool):
     print("  Clicking: Save and Continue")
     try:
         wd("pageFooterNextButton").click(timeout=5000)
-        page.wait_for_timeout(4000)
+        try:
+            page.wait_for_load_state("domcontentloaded", timeout=10000)
+        except Exception:
+            pass
         print(f"  After Save and Continue — URL: {page.url}")
     except Exception as e:
         print(f"  WARNING: Save and Continue: {e}")

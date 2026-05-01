@@ -78,14 +78,16 @@ class LinkedInPage(BasePage):
             url = self._build_search_url(query, days_back)
             print(f"  Searching: {query!r}")
             try:
-                await self.page.goto(url, wait_until="domcontentloaded", timeout=30_000)
+                if not await self.safe_goto(url, timeout=30_000):
+                    print("    Failed to navigate to search URL")
+                    continue
                 await self.page.wait_for_timeout(3000)
 
                 if await self._check_auth_wall():
                     print("    WARNING: LinkedIn not logged in / authwall hit")
                     continue
 
-                jobs: list[dict] = await self.page.evaluate(_EXTRACT_JS)
+                jobs: list[dict] = await self.evaluate_safe(_EXTRACT_JS) or []
                 print(f"    {len(jobs)} job(s) extracted")
                 for job in jobs:
                     job["source"] = "linkedin"
@@ -104,9 +106,12 @@ class LinkedInPage(BasePage):
         print(f"\n  Fetching descriptions for {len(unique)} unique job(s)...")
         for i, job in enumerate(unique, 1):
             try:
-                await self.page.goto(job["url"], wait_until="domcontentloaded", timeout=20_000)
+                if not await self.safe_goto(job["url"], timeout=20_000):
+                    job["content"] = ""
+                    print(f"  [{i}/{len(unique)}] {job.get('title')}: failed to navigate")
+                    continue
                 await self.page.wait_for_timeout(1500)
-                content = await self.page.evaluate(_EXTRACT_JD_JS)
+                content = await self.evaluate_safe(_EXTRACT_JD_JS) or ""
                 job["content"] = content
                 status = f"{len(content)} chars" if content else "no content found"
                 print(f"  [{i}/{len(unique)}] {job.get('company')} — {job.get('title')}: {status}")
